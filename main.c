@@ -1,5 +1,31 @@
 #include "nm.h"
 
+
+// #define STT_NOTYPE	0		/* Symbol type is unspecified */
+// #define STT_OBJECT	1		/* Symbol is a data object */
+// #define STT_FUNC	2		/* Symbol is a code object */
+// #define STT_SECTION	3		/* Symbol associated with a section */
+// #define STT_FILE	4		/* Symbol's name is file name */
+// #define STT_COMMON	5		/* Symbol is a common data object */
+// #define STT_TLS		6		/* Symbol is thread-local data object*/
+// #define	STT_NUM		7		/* Number of defined types.  */
+// #define STT_LOOS	10		/* Start of OS-specific */
+// #define STT_GNU_IFUNC	10		/* Symbol is indirect code object */
+// #define STT_HIOS	12		/* End of OS-specific */
+// #define STT_LOPROC	13		/* Start of processor-specific */
+// #define STT_HIPROC	15		/* End of processor-specific */
+
+char get_symbol_type(Elf64_Sym sym, Elf64_Shdr *shdr) {
+	// 	char type = 'U';
+
+	(void)sym;
+	(void)shdr;
+	// if (ELF64_ST_TYPE(sym.st_info) == STT_FUNC)
+	return ('?');
+	
+}
+
+
 int checkset_64_32(char *addr, size_t size)
 {
 	if (size < sizeof(Elf64_Ehdr)) {
@@ -34,27 +60,32 @@ int get_section(Elf64_Ehdr *ehdr, char *addr)
 {
 	Elf64_Shdr *shdr = (Elf64_Shdr *)(addr + ehdr->e_shoff); // pointe vers le debut de la table des section
 	char *shstrtab = addr + shdr[ehdr->e_shstrndx].sh_offset; // section qui contien le nom des section
-	printf("%s\n", &shstrtab[shdr[3].sh_name]);
 	
 	Elf64_Sym *symtab = NULL;
 	char *strtab = NULL;
 	size_t sym_count = 0;
 
 	for (int i = 0; i < ehdr->e_shnum; i++) {
-		if (strcmp(&shstrtab[shdr[i].sh_name], ".symtab") == 0) {
-			printf("\n\n%d\n\n", i);
+		if (strcmp(&shstrtab[shdr[i].sh_name], ".symtab") == 0) 
+		{
 			symtab = (Elf64_Sym *)(addr + shdr[i].sh_offset);
 			sym_count = shdr[i].sh_size / sizeof(Elf64_Sym);
-		} else if (strcmp(&shstrtab[shdr[i].sh_name], ".strtab") == 0) {
+		} 
+		else if (strcmp(&shstrtab[shdr[i].sh_name], ".strtab") == 0) 
+		{
 			strtab = (char *)(addr + shdr[i].sh_offset);
+		}
+		else if (strcmp(&shstrtab[shdr[i].sh_name], ".dynsym") == 0)
+		{
+			continue ;
 		}
 	}
 	for (size_t i = 0; i < sym_count; i++) {
 		if (symtab[i].st_name != 0) {
 			// printf("%lx %c %s\n", symtab[i].st_value, (ELF64_ST_TYPE(symtab[i].st_info) == STT_FUNC) ? 'T' : '?', );
-			printf("%.16lx           ",  symtab[i].st_value);
+			printf("%.16lx ",  symtab[i].st_value);
+			printf("%c ",	get_symbol_type(symtab[i], shdr));
 			printf("%s\n", &strtab[symtab[i].st_name]);
-			
 		}
 	}
 
@@ -91,10 +122,6 @@ int open_map_binary(const char *path)
 	}
 
 	int result = checkset_64_32(addr, statbuf.st_size);
-	
-	// Affichage de la signature ELF en hexadécimal (ELF au debut)
-	printf("ELF Magic: %02x %02x %02x %02x\n",
-		   addr[0] & 0xff, addr[1] & 0xff, addr[2] & 0xff, addr[3] & 0xff);
 	munmap(addr, statbuf.st_size);
 	return result;
 }
