@@ -56,6 +56,25 @@ int checkset_64_32(char *addr, size_t size)
 	}
 }
 
+t_lst	*ft_lstnew(void *content)
+{
+	t_lst	*d;
+
+	d = (t_lst *)malloc(sizeof(t_list));
+	if (!d)
+		return (NULL);
+	d->next = NULL;
+	d->str = content;
+	return (d);
+}
+
+// t_lst	*list_add_back(long unsigned int addr, char symb, char *name)
+// {
+// 	t_lst *tmp;
+	
+
+// }
+
 int get_section(Elf64_Ehdr *ehdr, char *addr)
 {
 	Elf64_Shdr *shdr = (Elf64_Shdr *)(addr + ehdr->e_shoff); // pointe vers le debut de la table des section
@@ -80,6 +99,31 @@ int get_section(Elf64_Ehdr *ehdr, char *addr)
 			continue ;
 		}
 	}
+	t_lst *list;
+	for (size_t i = 0, k = 0; i < sym_count; i++)
+	{
+		if (symtab[i].st_name != 0 && k != 1)
+		{
+			list = ft_lstnew(&strtab[symtab[i].st_name]);
+			k++;
+		}
+		else if (symtab[i].st_name != 0 && k != 0)
+		{
+			break ;
+			// printf("%lx\n", symtab[i].st_value);
+			// list = list_add_back(symtab[i].st_value,get_symbol_type(symtab[i], shdr),&strtab[symtab[i].st_name]);//addr , symbole, name 
+		}
+	}
+	list->next = NULL;
+	// for (size_t i = 0; i < sym_count; i++)
+	// {
+	// 	if (symtab[i].st_name != 0)
+	// 	{
+	// 	}
+	// }
+
+
+	// sorted_ascii(symtab);
 	for (size_t i = 0; i < sym_count; i++) {
 		if (symtab[i].st_name != 0) {
 			// printf("%lx %c %s\n", symtab[i].st_value, (ELF64_ST_TYPE(symtab[i].st_info) == STT_FUNC) ? 'T' : '?', );

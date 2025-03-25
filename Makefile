@@ -5,7 +5,10 @@ SRCS=		main.c
 OBJS=		$(SRCS:.c=.o)
 
 CC=			gcc
-CFLAGS	=	-Wall -Wextra -Werror -g #-fsanitize=address 
+CFLAGS	=	-Wall -Wextra -Werror -g
+
+LIBFT_DIR	=	libft
+LIBFT		=	$(LIBFT_DIR)/libft.a
 
 all: $(NAME)
 
@@ -16,15 +19,19 @@ all: $(NAME)
 do:
 	@make $(NAME)
 
-$(NAME): $(OBJS)
-	@$(CC) -o $(NAME) $(OBJS) $(CFLAGS)
+$(NAME): $(OBJS) $(LIBFT)
+	@$(CC) -o $(NAME) $(OBJS) $(LIBFT) $(CFLAGS)
 	@echo $$'\n✅ \033[1;32mproject compiled\033[0m ✅'
+
+$(LIBFT):
+	@make -C $(LIBFT_DIR)
 
 clean:
 	@rm -f $(OBJS)
 	@echo $$'\033[1;31mremoved object files\033[0m'
+	@make -C $(LIBFT_DIR) fclean
 
-fclean: clean
+fclean:
 	@rm -f $(NAME)
 	@echo $$'\033[1;31mremoved $(NAME)\033[0m'
 
