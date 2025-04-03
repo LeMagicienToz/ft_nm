@@ -26,12 +26,13 @@ $(NAME): $(OBJS) $(LIBFT)
 $(LIBFT):
 	@make -C $(LIBFT_DIR)
 
-clean:
+fclean:
 	@rm -f $(OBJS)
+	@rm -f $(NAME)
 	@echo $$'\033[1;31mremoved object files\033[0m'
 	@make -C $(LIBFT_DIR) fclean
 
-fclean:
+clean:
 	@rm -f $(NAME)
 	@echo $$'\033[1;31mremoved $(NAME)\033[0m'
 
