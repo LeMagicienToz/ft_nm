@@ -16,31 +16,83 @@
 // #define STT_HIPROC	15		/* End of processor-specific */
 #include <elf.h>
 
-char get_symbol_type(Elf64_Sym sym, Elf64_Shdr *shdr, char *shstrtab) {
-	char c;
-	(void)shstrtab;
-	// (void)sym;
-	// (void)shdr;
+char get_symbol_type(Elf64_Sym sym, Elf64_Shdr *shdr, char *shstrtab) 
+{
+char c = '?';
 
-	// Symboles non définis
-	if(sym.st_shndx == SHN_ABS)
+	// 1. IFUNC
+	if (ELF64_ST_TYPE(sym.st_info) == STT_GNU_IFUNC) {
+		c = (ELF64_ST_BIND(sym.st_info) == STB_LOCAL) ? 'i' : 'I';
+	}
+
+	// 2. Symbole non défini
+	else if (sym.st_shndx == SHN_UNDEF) {
+	if (ELF64_ST_BIND(sym.st_info) == STB_WEAK) {
+		c = (ELF64_ST_TYPE(sym.st_info) == STT_OBJECT) ? 'v' : 'w';
+	} else {
+		c = 'U';
+	}
+	}
+
+	// 3. Symboles spéciaux
+	else if (sym.st_shndx == SHN_ABS) {
 		c = 'A';
-	else if(sym.st_shndx == SHN_COMMON)
-		c = 'C';
+	}
+	else if (sym.st_shndx == SHN_COMMON) {
+		c = (ELF64_ST_BIND(sym.st_info) == STB_LOCAL) ? 'c' : 'C';
+	}
+
+	// 4. Symboles définis dans une section
 	else if (sym.st_shndx < SHN_LORESERVE) {
 		Elf64_Shdr sec = shdr[sym.st_shndx];
-		if(sec.sh_type == SHT_NOBITS)
+		const char *sec_name = shstrtab + sec.sh_name;
+
+		// 4.1 Weak défini
+		if (ELF64_ST_BIND(sym.st_info) == STB_WEAK) {
+			c = (ELF64_ST_TYPE(sym.st_info) == STT_OBJECT) ? 'V' : 'W';
+		}
+		// 4.2 Sections de debug
+		else if (sec_name && strncmp(sec_name, ".debug", 6) == 0) {
+			c = 'N';
+		}
+		// 4.3 .bss
+		else if (sec.sh_type == SHT_NOBITS) {
 			c = 'B';
-		else if (sec.sh_type == SHT_PROGBITS && \
-		(sec.sh_flags & SHF_WRITE))
+		}
+		// 4.4 .dynamic
+		else if (sec.sh_type == SHT_DYNAMIC) {
 			c = 'D';
+		}
+		else if (sec.sh_type == SHT_INIT_ARRAY || sec.sh_type == SHT_FINI_ARRAY) {
+			c = 'D';
+		}
+		// 4.5 .text / .data / .rodata
+		else if (sec.sh_type == SHT_PROGBITS) {
+			if (sec.sh_flags & SHF_EXECINSTR)
+				c = 'T';
+			else if (sec.sh_flags & SHF_WRITE)
+				c = 'D';
+			else
+				c = 'R';
+		}
+		// 4.6 Sections lecture seule comme .note, .eh_frame
+		else if ((sec.sh_flags & SHF_ALLOC) &&
+		         !(sec.sh_flags & SHF_WRITE) &&
+		         !(sec.sh_flags & SHF_EXECINSTR)) {
+			c = 'R';
+		}
+		// 4.7 Sections .sdata / .sbss (optionnel)
+		else if (sec_name &&
+		         (strcmp(sec_name, ".sdata") == 0 || strcmp(sec_name, ".sbss") == 0)) {
+			c = (ELF64_ST_BIND(sym.st_info) == STB_LOCAL) ? 'g' : 'G';
+		}
 	}
-	else if(ELF64_ST_TYPE(sym.st_info) == STT_GNU_IFUNC)
-		c = 'I';
-	else
-		c = '?';
-	if (ELF64_ST_BIND(sym.st_info) == STB_LOCAL)
+
+	// 5. Mise en minuscule si local (sauf les cas particuliers)
+	if (ELF64_ST_BIND(sym.st_info) == STB_LOCAL &&
+	    c != '?' && c != 'U' && c != 'w' && c != 'v')
 		c += 32;
+
 	return c;
 }
 
@@ -158,14 +210,16 @@ int get_section(Elf64_Ehdr *ehdr, char *addr)
 		list_add_back(&list, addr, type, name);
 	}
 	t_lst *tmp = list;
+	int i = 0;
 	while (tmp) {
-		if(tmp->st_value)
-			printf("%.16lx " ,tmp->st_value);
-		else
-			printf("                 ");
-		printf("%c " ,tmp->symb);
-		printf("%s\n", tmp->str);
-		tmp = tmp->next;
+	if (tmp->symb == 'U' || tmp->symb == 'w' || tmp->symb == 'v')
+		printf("                 ");
+	else
+		printf("%016lx ", tmp->st_value);
+	printf("%c " ,tmp->symb);
+	printf("%s\n", tmp->str);
+	tmp = tmp->next;
+	i++;
 	}
 	return(0);
 }
