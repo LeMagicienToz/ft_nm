@@ -35,6 +35,8 @@ char get_symbol_type(Elf64_Sym sym, Elf64_Shdr *shdr, char *shstrtab) {
 		(sec.sh_flags & SHF_WRITE))
 			c = 'D';
 	}
+	else if(ELF64_ST_TYPE(sym.st_info) == STT_GNU_IFUNC)
+		c = 'I';
 	else
 		c = '?';
 	if (ELF64_ST_BIND(sym.st_info) == STB_LOCAL)
