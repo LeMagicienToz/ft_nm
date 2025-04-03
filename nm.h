@@ -18,15 +18,15 @@
 typedef struct s_lst {
     char *str;
     long unsigned int st_value;
-    int index;
-    struct lst *next;
+    char symb;
+    struct s_lst *next;
 }t_lst;
 
 // typedef struct s_elf32
 // {
 
 // }	t_elf32;
-
+void list_add_back(t_lst **head, unsigned long addr, char symb, const char *name);
 t_lst	*ft_lstnew(void *content);
 int get_section(Elf64_Ehdr *ehdr, char *addr);
 int checkset_64_32(char *addr, size_t size);

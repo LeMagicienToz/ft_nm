@@ -14,16 +14,34 @@
 // #define STT_HIOS	12		/* End of OS-specific */
 // #define STT_LOPROC	13		/* Start of processor-specific */
 // #define STT_HIPROC	15		/* End of processor-specific */
+#include <elf.h>
 
-char get_symbol_type(Elf64_Sym sym, Elf64_Shdr *shdr) {
-	// 	char type = 'U';
+char get_symbol_type(Elf64_Sym sym, Elf64_Shdr *shdr, char *shstrtab) {
+	char c;
+	(void)shstrtab;
+	// (void)sym;
+	// (void)shdr;
 
-	(void)sym;
-	(void)shdr;
-	// if (ELF64_ST_TYPE(sym.st_info) == STT_FUNC)
-	return ('?');
-	
+	// Symboles non définis
+	if(sym.st_shndx == SHN_ABS)
+		c = 'A';
+	else if(sym.st_shndx == SHN_COMMON)
+		c = 'C';
+	else if (sym.st_shndx < SHN_LORESERVE) {
+		Elf64_Shdr sec = shdr[sym.st_shndx];
+		if(sec.sh_type == SHT_NOBITS)
+			c = 'B';
+		else if (sec.sh_type == SHT_PROGBITS && \
+		(sec.sh_flags & SHF_WRITE))
+			c = 'D';
+	}
+	else
+		c = '?';
+	if (ELF64_ST_BIND(sym.st_info) == STB_LOCAL)
+		c += 32;
+	return c;
 }
+
 
 
 int checkset_64_32(char *addr, size_t size)
@@ -68,71 +86,85 @@ t_lst	*ft_lstnew(void *content)
 	return (d);
 }
 
-// t_lst	*list_add_back(long unsigned int addr, char symb, char *name)
-// {
-// 	t_lst *tmp;
-	
+void list_add_back(t_lst **head, unsigned long addr, char symb, const char *name)
+{
+	t_lst *new = malloc(sizeof(t_lst));
+	if (!new)
+		return;
 
-// }
+	new->st_value = addr;
+	new->symb = symb;
+	new->str = strdup(name);
+	new->next = NULL;
+
+	if (!*head) {
+		*head = new;
+		return;
+	}
+
+	t_lst *tmp = *head;
+	while (tmp->next)
+		tmp = tmp->next;
+	tmp->next = new;
+}
+
 
 int get_section(Elf64_Ehdr *ehdr, char *addr)
 {
-	Elf64_Shdr *shdr = (Elf64_Shdr *)(addr + ehdr->e_shoff); // pointe vers le debut de la table des section
-	char *shstrtab = addr + shdr[ehdr->e_shstrndx].sh_offset; // section qui contien le nom des section
-	
+	Elf64_Shdr *shdr = (Elf64_Shdr *)(addr + ehdr->e_shoff);
+	char *shstrtab = addr + shdr[ehdr->e_shstrndx].sh_offset;
+
 	Elf64_Sym *symtab = NULL;
 	char *strtab = NULL;
 	size_t sym_count = 0;
+	size_t strtab_size = 0;
 
 	for (int i = 0; i < ehdr->e_shnum; i++) {
-		if (strcmp(&shstrtab[shdr[i].sh_name], ".symtab") == 0) 
-		{
+		if (strcmp(&shstrtab[shdr[i].sh_name], ".symtab") == 0) {
 			symtab = (Elf64_Sym *)(addr + shdr[i].sh_offset);
 			sym_count = shdr[i].sh_size / sizeof(Elf64_Sym);
-		} 
-		else if (strcmp(&shstrtab[shdr[i].sh_name], ".strtab") == 0) 
-		{
+		}
+		else if (strcmp(&shstrtab[shdr[i].sh_name], ".strtab") == 0) {
 			strtab = (char *)(addr + shdr[i].sh_offset);
-		}
-		else if (strcmp(&shstrtab[shdr[i].sh_name], ".dynsym") == 0)
-		{
-			continue ;
+			strtab_size = shdr[i].sh_size;
 		}
 	}
-	t_lst *list;
-	for (size_t i = 0, k = 0; i < sym_count; i++)
-	{
-		if (symtab[i].st_name != 0 && k != 1)
-		{
-			list = ft_lstnew(&strtab[symtab[i].st_name]);
-			k++;
-		}
-		else if (symtab[i].st_name != 0 && k != 0)
-		{
-			break ;
-			// printf("%lx\n", symtab[i].st_value);
-			// list = list_add_back(symtab[i].st_value,get_symbol_type(symtab[i], shdr),&strtab[symtab[i].st_name]);//addr , symbole, name 
-		}
+
+	if (!symtab || !strtab) {
+		return 0;
 	}
-	list->next = NULL;
-	// for (size_t i = 0; i < sym_count; i++)
-	// {
-	// 	if (symtab[i].st_name != 0)
-	// 	{
-	// 	}
-	// }
 
+	t_lst *list = NULL;
 
-	// sorted_ascii(symtab);
 	for (size_t i = 0; i < sym_count; i++) {
-		if (symtab[i].st_name != 0) {
-			// printf("%lx %c %s\n", symtab[i].st_value, (ELF64_ST_TYPE(symtab[i].st_info) == STT_FUNC) ? 'T' : '?', );
-			printf("%.16lx ",  symtab[i].st_value);
-			printf("%c ",	get_symbol_type(symtab[i], shdr));
-			printf("%s\n", &strtab[symtab[i].st_name]);
-		}
-	}
+		uint32_t name_offset = symtab[i].st_name;
 
+		// Vérification sécurité : ne pas lire hors mémoire
+		if (name_offset >= strtab_size)
+			continue;
+
+		const char *name = &strtab[name_offset];
+		if (name[0] == '\0') // ignorer les symboles sans nom
+			continue;
+		if (ELF64_ST_TYPE(symtab[i].st_info) == STT_FILE)
+			continue;
+
+		char type = get_symbol_type(symtab[i], shdr, shstrtab);
+		unsigned long addr = symtab[i].st_value;
+
+		// Ajout à la liste
+		list_add_back(&list, addr, type, name);
+	}
+	t_lst *tmp = list;
+	while (tmp) {
+		if(tmp->st_value)
+			printf("%.16lx " ,tmp->st_value);
+		else
+			printf("                 ");
+		printf("%c " ,tmp->symb);
+		printf("%s\n", tmp->str);
+		tmp = tmp->next;
+	}
 	return(0);
 }
 
