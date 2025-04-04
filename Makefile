@@ -1,8 +1,9 @@
 NAME=		ft_nm
 
-SRCS=		main.c \
-			nm64.c \
-			nm32.c
+SRCS=		src/main.c \
+			src/nm64.c \
+			src/nm32.c \
+			src/utils.c
 
 OBJS=		$(SRCS:.c=.o)
 
