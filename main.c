@@ -8,6 +8,7 @@ int checkset_64_32(char *addr, size_t size)
 	}
 
 	Elf64_Ehdr *ehdr = (Elf64_Ehdr *) addr;
+	Elf32_Ehdr *ehdr32 = (Elf32_Ehdr *) addr; 
 
 	if (ehdr->e_ident[EI_MAG0] != ELFMAG0 || 
 		ehdr->e_ident[EI_MAG1] != ELFMAG1 || 
@@ -16,13 +17,21 @@ int checkset_64_32(char *addr, size_t size)
 		printf("Not an ELF file\n");
 		return -1;
 	}
+	else if(ehdr32->e_ident[EI_MAG0] != ELFMAG0 || 
+		ehdr32->e_ident[EI_MAG1] != ELFMAG1 || 
+		ehdr32->e_ident[EI_MAG2] != ELFMAG2 || 
+		ehdr32->e_ident[EI_MAG3] != ELFMAG3) {
+		printf("Not an ELF file\n");
+		return -1;
+	}
 
 	if (ehdr->e_ident[EI_CLASS] == ELFCLASS32) {
 		printf("ELF is 32-bit (ELF32)\n");
+		get_section_32(ehdr32, addr);
 		return 32;
 	} else if (ehdr->e_ident[EI_CLASS] == ELFCLASS64) {
 		printf("ELF is 64-bit (ELF64)\n");
-		get_section(ehdr, addr);
+		get_section_64(ehdr, addr);
 		return 64;
 	} else {
 		printf("Unknown ELF class\n");

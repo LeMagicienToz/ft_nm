@@ -9,7 +9,7 @@ char c = '?';
 		c = (ELF64_ST_BIND(sym.st_info) == STB_LOCAL) ? 'i' : 'I';
 	}
 
-	// 2. Symbole non défini
+	// 2. Symbole non defini
 	else if (sym.st_shndx == SHN_UNDEF) {
 	if (ELF64_ST_BIND(sym.st_info) == STB_WEAK) {
 		c = (ELF64_ST_TYPE(sym.st_info) == STT_OBJECT) ? 'v' : 'w';
@@ -18,7 +18,7 @@ char c = '?';
 	}
 	}
 
-	// 3. Symboles spéciaux
+	// 3. Symboles speciaux
 	else if (sym.st_shndx == SHN_ABS) {
 		c = 'A';
 	}
@@ -26,12 +26,12 @@ char c = '?';
 		c = (ELF64_ST_BIND(sym.st_info) == STB_LOCAL) ? 'c' : 'C';
 	}
 
-	// 4. Symboles définis dans une section
+	// 4. Symboles definis dans une section
 	else if (sym.st_shndx < SHN_LORESERVE) {
 		Elf64_Shdr sec = shdr[sym.st_shndx];
 		const char *sec_name = shstrtab + sec.sh_name;
 
-		// 4.1 Weak défini
+		// 4.1 Weak defini
 		if (ELF64_ST_BIND(sym.st_info) == STB_WEAK) {
 			c = (ELF64_ST_TYPE(sym.st_info) == STT_OBJECT) ? 'V' : 'W';
 		}
@@ -112,7 +112,7 @@ int get_section_64(Elf64_Ehdr *ehdr, char *addr)
 	for (size_t i = 0; i < sym_count; i++) {
 		uint32_t name_offset = symtab[i].st_name;
 
-		// Vérification sécurité : ne pas lire hors mémoire
+		// Verif securite : ne pas lire hors memoire
 		if (name_offset >= strtab_size)
 			continue;
 
@@ -122,23 +122,32 @@ int get_section_64(Elf64_Ehdr *ehdr, char *addr)
 		if (ELF64_ST_TYPE(symtab[i].st_info) == STT_FILE)
 			continue;
 
-		char type = get_symbol_type(symtab[i], shdr, shstrtab);
+		char type = get_symbol_type_64(symtab[i], shdr, shstrtab);
 		unsigned long addr = symtab[i].st_value;
 
-		// Ajout à la liste
+		// Ajout a la liste
+
+		// printf("GUIGUIGUIGUIGUIGUIG\n\n\n\n");
 		list_add_back(&list, addr, type, name);
-	}
-	t_lst *tmp = list;
-	int i = 0;
-	while (tmp) {
-	if (tmp->symb == 'U' || tmp->symb == 'w' || tmp->symb == 'v')
-		printf("                 ");
-	else
-		printf("%016lx ", tmp->st_value);
-	printf("%c " ,tmp->symb);
-	printf("%s\n", tmp->str);
-	tmp = tmp->next;
-	i++;
-	}
+        }
+        printer(list);
 	return(0);
+}
+
+void printer(t_lst *list)
+{
+    (void)list;
+     t_lst *tmp = list;
+        int i = 0;
+        // printf("Dwadawdwad\n\n\n");
+        while (tmp) {
+            if (tmp->symb == 'U' || tmp->symb == 'w' || tmp->symb == 'v')
+                printf("                 ");
+            else
+                printf("%016lx ", tmp->st_value);
+            printf("%c " ,tmp->symb);
+            printf("%s\n", tmp->str);
+            tmp = tmp->next;
+            i++;
+        }
 }

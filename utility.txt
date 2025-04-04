@@ -1,0 +1,4 @@
+32bit
+./ft_nm /usr/lib/modules/6.8.0-57-generic/vdso/vdso32.so
+64bit
+./ft_nm ft_nm

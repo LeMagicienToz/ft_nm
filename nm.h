@@ -23,6 +23,7 @@ typedef struct s_lst {
     struct s_lst *next;
 }t_lst;
 
+void printer(t_lst *list);
 void list_add_back(t_lst **head, unsigned long addr, char symb, const char *name);
 t_lst	*ft_lstnew(void *content);
 int checkset_64_32(char *addr, size_t size);
@@ -32,5 +33,9 @@ int open_map_binary(const char *path);
 
 int get_section_64(Elf64_Ehdr *ehdr, char *addr);
 char get_symbol_type_64(Elf64_Sym sym, Elf64_Shdr *shdr, char *shstrtab);
+
+//32b
+
+int get_section_32(Elf32_Ehdr *ehdr, char *addr);
 
 #endif

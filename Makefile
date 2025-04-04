@@ -1,6 +1,8 @@
 NAME=		ft_nm
 
-SRCS=		main.c
+SRCS=		main.c \
+			nm64.c \
+			nm32.c
 
 OBJS=		$(SRCS:.c=.o)
 
