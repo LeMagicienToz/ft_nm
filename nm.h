@@ -15,6 +15,7 @@
 #define ELFCLASS32 1
 #define ELFCLASS64 2
 
+// main
 typedef struct s_lst {
     char *str;
     long unsigned int st_value;
@@ -22,14 +23,14 @@ typedef struct s_lst {
     struct s_lst *next;
 }t_lst;
 
-// typedef struct s_elf32
-// {
-
-// }	t_elf32;
 void list_add_back(t_lst **head, unsigned long addr, char symb, const char *name);
 t_lst	*ft_lstnew(void *content);
-int get_section(Elf64_Ehdr *ehdr, char *addr);
 int checkset_64_32(char *addr, size_t size);
 int open_map_binary(const char *path);
+
+//64b
+
+int get_section_64(Elf64_Ehdr *ehdr, char *addr);
+char get_symbol_type_64(Elf64_Sym sym, Elf64_Shdr *shdr, char *shstrtab);
 
 #endif
