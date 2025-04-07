@@ -1,4 +1,5 @@
 #include "../nm.h"
+#include <locale.h>
 
 char get_symbol_type_64(Elf64_Sym sym, Elf64_Shdr *shdr, char *shstrtab) 
 {
@@ -127,6 +128,8 @@ int get_section_64(Elf64_Ehdr *ehdr, char *addr)
 
 		list_add_back(&list, addr, type, name);
 		}
+		setlocale(LC_COLLATE, ""); //active les regles pour strcoll
+		sort_list_by_str(&list);
 		printer(list);
 	return(0);
 }

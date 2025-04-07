@@ -10,6 +10,7 @@
 #include <elf.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <ctype.h>
 #include <elf.h>
 #define EI_CLASS 4  // Offset for ELF class in the header
 #define ELFCLASS32 1
@@ -23,6 +24,8 @@ typedef struct s_lst {
     struct s_lst *next;
 }t_lst;
 
+
+void sort_list_by_str(t_lst **head);
 void printer(t_lst *list);
 void list_add_back(t_lst **head, unsigned long addr, char symb, const char *name);
 t_lst	*ft_lstnew(void *content);

@@ -2,3 +2,9 @@
 ./ft_nm /usr/lib/modules/6.8.0-57-generic/vdso/vdso32.so
 64bit
 ./ft_nm ft_nm
+
+
+
+nm ft_nm > ref.txt
+./ft_nm ft_nm | grep -v 'ELF is' > test.txt
+diff -u ref.txt test.txt
