@@ -3,7 +3,7 @@ NAME=		ft_nm
 SRCS=		src/main.c \
 			src/nm64.c \
 			src/nm32.c \
-			src/utils.c
+			src/utils.c 
 
 OBJS=		$(SRCS:.c=.o)
 

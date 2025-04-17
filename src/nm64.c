@@ -1,6 +1,19 @@
 #include "../nm.h"
 #include <locale.h>
 
+const char *get_system_locale(void) {
+	const char *locale;
+
+	if ((locale = getenv("LC_ALL")) && *locale)
+		return locale;
+	if ((locale = getenv("LC_COLLATE")) && *locale)
+		return locale;
+	if ((locale = getenv("LANG")) && *locale)
+		return locale;
+	return "C"; // fallback
+}
+
+
 char get_symbol_type_64(Elf64_Sym sym, Elf64_Shdr *shdr, char *shstrtab) 
 {
 	char c = '?';
@@ -128,8 +141,9 @@ int get_section_64(Elf64_Ehdr *ehdr, char *addr)
 
 		list_add_back(&list, addr, type, name);
 		}
-		setlocale(LC_COLLATE, ""); //active les regles pour strcoll
+		// setlocale(LC_COLLATE, ""); //active les regles pour strcoll
 		sort_list_by_str(&list);
+		// sort_list_by_str(&list);
 		printer(list);
 	return(0);
 }

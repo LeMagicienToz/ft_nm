@@ -30,7 +30,7 @@ int checkset_64_32(char *addr, size_t size)
 		get_section_32(ehdr32, addr);
 		return 32;
 	} else if (ehdr->e_ident[EI_CLASS] == ELFCLASS64) {
-		printf("ELF is 64-bit (ELF64)\n");
+		// printf("ELF is 64-bit (ELF64)\n");
 		get_section_64(ehdr, addr);
 		return 64;
 	} else {
@@ -75,6 +75,7 @@ int open_map_binary(const char *path)
 
 int main(int ac, char **av)
 {
+	// init_char_order();
 	if (ac != 2) {
 		printf("Usage: %s <elf_file>\n", av[0]);
 		return 1;

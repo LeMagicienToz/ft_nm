@@ -25,6 +25,8 @@ typedef struct s_lst {
 }t_lst;
 
 
+t_lst *sort_utf_8(t_lst *lst);
+const char *ft_setlocale(int category, const char *locale);
 void sort_list_by_str(t_lst **head);
 void printer(t_lst *list);
 void list_add_back(t_lst **head, unsigned long addr, char symb, const char *name);
