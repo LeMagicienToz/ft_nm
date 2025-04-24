@@ -1,83 +1,41 @@
 #include "../nm.h"
 #include "../char_order_utf8.h"
 
-int count_leading_underscores(const char *s) {
-    int count = 0;
-    while (*s == '_') {
-        count++;
-        s++;
+int compare_ascii(const char *a, const char *b)
+{
+    while (*a && *a == *b)
+    {
+        a++;
+        b++;
     }
-    return count;
+    return (unsigned char)*a - (unsigned char)*b;
 }
 
-int ft_strcmp_nm(const char *a, const char *b) {
-    const char *na = a;
-    const char *nb = b;
+void insert_sorted(t_lst **sorted, t_lst *new)
+{
+    t_lst **curr = sorted;
 
-    // Skip leading underscores for comparison
-    while (*na == '_') na++;
-    while (*nb == '_') nb++;
+    while (*curr && compare_ascii((*curr)->str, new->str) < 0)
+        curr = &(*curr)->next;
 
-    while (*na || *nb) {
-        unsigned char ca = (unsigned char)*na;
-        unsigned char cb = (unsigned char)*nb;
+    new->next = *curr;
+    *curr = new;
+}
 
-        if (char_order[ca] != char_order[cb])
-            return char_order[ca] - char_order[cb];
+void sort_list_ascii(t_lst **head)
+{
+    t_lst *sorted = NULL;
+    t_lst *current = *head;
+    t_lst *next;
 
-        na++;
-        nb++;
+    while (current)
+    {
+        next = current->next;
+        current->next = NULL;
+        insert_sorted(&sorted, current);
+        current = next;
     }
-
-    // Names are equal without underscores, compare underscore count
-    int underscores_a = count_leading_underscores(a);
-    int underscores_b = count_leading_underscores(b);
-
-    if (underscores_a != underscores_b)
-        return underscores_a - underscores_b;
-
-    return 0;
-}
-
-int compare_symbols(t_lst *a, t_lst *b) {
-    int cmp = ft_strcmp_nm(a->str, b->str);
-    if (cmp != 0)
-		return cmp;
-	if (a->symb != b->symb)
-		return (unsigned char)a->symb - (unsigned char)b->symb;
-    return 0;
-}
-
-void sort_list_by_str(t_lst **head) {
-	if (!head || !*head)
-		return;
-
-	t_lst *sorted = NULL;
-
-	while (*head) {
-		t_lst *curr = *head;
-		*head = curr->next;
-		curr->next = NULL;
-
-		if (!sorted || compare_symbols(curr, sorted) < 0) {
-			// insertion en tête
-			curr->next = sorted;
-			sorted = curr;
-		} else {
-			// insertion après
-			t_lst *tmp = sorted;
-			while (tmp->next && compare_symbols(curr, tmp->next) > 0)
-				tmp = tmp->next;
-
-			while (tmp->next && compare_symbols(curr, tmp->next) == 0)
-				tmp = tmp->next;
-
-			curr->next = tmp->next;
-			tmp->next = curr;
-		}
-	}
-
-	*head = sorted;
+    *head = sorted;
 }
 
 

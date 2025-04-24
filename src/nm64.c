@@ -73,13 +73,13 @@ char get_symbol_type_64(Elf64_Sym sym, Elf64_Shdr *shdr, char *shstrtab)
 			else
 				c = 'R';
 		}
-		//Sections lecture seule comme .note, .eh_frame
+		//Section lecture seule comme .note, .eh_frame
 		else if ((sec.sh_flags & SHF_ALLOC) &&
 				 !(sec.sh_flags & SHF_WRITE) &&
 				 !(sec.sh_flags & SHF_EXECINSTR)) {
 			c = 'R';
 		}
-		//Sections .sdata / .sbss (optionnel)
+		//Section .sdata / .sbss (optionnel)
 		else if (sec_name &&
 				 (strcmp(sec_name, ".sdata") == 0 || strcmp(sec_name, ".sbss") == 0)) {
 			c = (ELF64_ST_BIND(sym.st_info) == STB_LOCAL) ? 'g' : 'G';
@@ -142,7 +142,7 @@ int get_section_64(Elf64_Ehdr *ehdr, char *addr)
 		list_add_back(&list, addr, type, name);
 		}
 		// setlocale(LC_COLLATE, ""); //active les regles pour strcoll
-		sort_list_by_str(&list);
+		sort_list_ascii(&list);
 		// sort_list_by_str(&list);
 		printer(list);
 	return(0);
