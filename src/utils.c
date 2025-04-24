@@ -1,5 +1,4 @@
 #include "../nm.h"
-#include "../char_order_utf8.h"
 
 int compare_ascii(const char *a, const char *b)
 {
