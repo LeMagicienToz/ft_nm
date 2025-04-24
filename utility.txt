@@ -3,7 +3,7 @@
 64bit
 ./ft_nm ft_nm
 
-
+!! diff <(./ft_nm ft_nm) <(LC_ALL=C nm ft_nm) !!
 
 nm ft_nm > ref.txt
 ./ft_nm ft_nm | grep -v 'ELF is' > test.txt

@@ -144,6 +144,6 @@ int get_section_64(Elf64_Ehdr *ehdr, char *addr)
 		// setlocale(LC_COLLATE, ""); //active les regles pour strcoll
 		sort_list_ascii(&list);
 		// sort_list_by_str(&list);
-		printer(list);
+		printer_64(list);
 	return(0);
 }

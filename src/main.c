@@ -26,7 +26,7 @@ int checkset_64_32(char *addr, size_t size)
 	}
 
 	if (ehdr->e_ident[EI_CLASS] == ELFCLASS32) {
-		printf("ELF is 32-bit (ELF32)\n");
+		// printf("ELF is 32-bit (ELF32)\n");
 		get_section_32(ehdr32, addr);
 		return 32;
 	} else if (ehdr->e_ident[EI_CLASS] == ELFCLASS64) {
