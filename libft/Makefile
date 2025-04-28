@@ -31,7 +31,20 @@ SRCS =	ft_atoi.c \
 		ft_strtrim.c \
 		ft_substr.c \
 		ft_tolower.c \
-		ft_toupper.c
+		ft_toupper.c \
+		ft_printf.c \
+		ft_checkflags.c \
+		ft_argputchar.c \
+		ft_argputstr.c \
+		ft_putchar.c \
+		ft_argputchar.c\
+		ft_argputstr.c\
+		ft_putstr.c\
+		ft_argputnbr.c\
+		ft_argputnbr_base.c \
+		ft_putstr.c \
+		ft_argputnbr.c \
+		ft_argputnbr_base.c 
 
 SRCB =	ft_lstadd_back.c \
 		ft_lstadd_front.c \

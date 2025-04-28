@@ -51,28 +51,6 @@ t_lst	*ft_lstnew(void *content)
 	return (d);
 }
 
-void list_add_back(t_lst **head, unsigned long addr, char symb, const char *name)
-{
-	t_lst *new = malloc(sizeof(t_lst));
-	if (!new)
-		return;
-
-	new->st_value = addr;
-	new->symb = symb;
-	new->str = strdup(name);
-	new->next = NULL;
-
-	if (!*head) {
-		*head = new;
-		return;
-	}
-
-	t_lst *tmp = *head;
-	while (tmp->next)
-		tmp = tmp->next;
-	tmp->next = new;
-}
-
 int open_map_binary(const char *path)
 {
 	int fd = open(path, O_RDONLY);
@@ -110,7 +88,7 @@ int open_map_binary(const char *path)
 int main(int ac, char **av)
 {
 	if (ac != 2) {
-		printf("Usage: %s <elf_file>\n", av[0]);
+		ft_printf("Usage: %s <elf_file>\n", av[0]);
 		return 1;
 	}
 

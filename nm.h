@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "libft/libft.h"
+#include "libft/ft_printf.h"
 #include <fcntl.h>
 #include <sys/mman.h>
 #include <elf.h>
@@ -23,6 +24,7 @@ typedef struct s_lst {
     char symb;
     struct s_lst *next;
 }t_lst;
+
 
 void sort_list_ascii(t_lst **head);
 t_lst *sort_utf_8(t_lst *lst);

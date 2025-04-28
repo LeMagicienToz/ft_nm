@@ -37,32 +37,68 @@ void sort_list_ascii(t_lst **head)
 	*head = sorted;
 }
 
+void put_hex_8(unsigned long n)
+{
+    char hex[9];
+    const char *base = "0123456789abcdef";
+    int i = 7;
+
+    hex[8] = '\0';
+    while (i >= 0) {
+        hex[i] = base[n % 16];
+        n /= 16;
+        i--;
+    }
+    write(1, hex, 8);
+}
+
+
 void printer_32(t_lst *list) {
 	t_lst *tmp = list;
 	while (tmp) {
 		if (tmp->symb == 'U' || tmp->symb == 'w' || tmp->symb == 'v')
-			printf("                 ");
+			ft_printf("                 ");
 		else
-			printf("%08lx ", tmp->st_value);
-
-		printf("%c ", tmp->symb);
-		printf("%s", tmp->str);
-		printf("\n");
+		{
+			put_hex_8(tmp->st_value);
+			ft_printf(" ");
+		}
+		ft_printf("%c ", tmp->symb);
+		ft_printf("%s", tmp->str);
+		ft_printf("\n");
 		tmp = tmp->next;
 	}
 }
+
+void put_hex_16(unsigned long n)
+{
+    char hex[17];
+    const char *base = "0123456789abcdef";
+    int i = 15;
+
+    hex[16] = '\0';
+    while (i >= 0) {
+        hex[i] = base[n % 16];
+        n /= 16;
+        i--;
+    }
+    write(1, hex, 16);
+}
+
 
 void printer_64(t_lst *list) {
 	t_lst *tmp = list;
 	while (tmp) {
 		if (tmp->symb == 'U' || tmp->symb == 'w' || tmp->symb == 'v')
-			printf("                 ");
+			ft_printf("                 ");
 		else
-			printf("%016lx ", tmp->st_value);
-
-		printf("%c ", tmp->symb);
-		printf("%s", tmp->str);
-		printf("\n");
+		{
+			put_hex_16(tmp->st_value);
+			ft_printf(" ");
+		}
+		ft_printf("%c ", tmp->symb);
+		ft_printf("%s", tmp->str);
+		ft_printf("\n");
 		tmp = tmp->next;
 	}
 }

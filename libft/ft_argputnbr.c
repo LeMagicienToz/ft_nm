@@ -1,25 +1,48 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_strlen.c                                        :+:      :+:    :+:   */
+/*   ft_argputnbr.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: muteza <muteza@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2021/11/04 18:00:32 by muteza            #+#    #+#             */
-/*   Updated: 2021/11/08 09:27:15 by muteza           ###   ########.fr       */
+/*   Created: 2021/11/05 16:55:28 by muteza            #+#    #+#             */
+/*   Updated: 2021/11/12 07:59:21 by muteza           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft_printf.h"
 
-size_t	ft_strlen(const char *s)
+int	ft_argputnbr(int n)
 {
-	int	i;
+	int	j;
 
-	i = 0;
-	while (s[i] != '\0')
+	j = 0;
+	if (n == -2147483648)
 	{
-		i++;
+		j += ft_argputstr("-2147483648");
+		return (j);
 	}
-	return (i);
+	if (n < 0)
+	{
+		j += ft_argputchar('-');
+		n = n * -1;
+	}
+	if (n <= 9 && n >= 0)
+	{
+		j += ft_argputchar(n + 48);
+	}
+	if (n >= 10)
+	{
+		j += ft_argputnbr(n / 10);
+		j += ft_argputnbr(n % 10);
+	}
+	return (j);
 }
+
+/*
+int	main(void)
+{
+	printf("%d\n ", printf(" %d ", -32));
+	printf("%d\n ", ft_argputnbr(-32));
+}
+*/
