@@ -1,29 +1,15 @@
 #include "../nm.h"
-#include <locale.h>
-
-const char *get_system_locale(void) {
-	const char *locale;
-
-	if ((locale = getenv("LC_ALL")) && *locale)
-		return locale;
-	if ((locale = getenv("LC_COLLATE")) && *locale)
-		return locale;
-	if ((locale = getenv("LANG")) && *locale)
-		return locale;
-	return "C"; // fallback
-}
-
 
 char get_symbol_type_64(Elf64_Sym sym, Elf64_Shdr *shdr, char *shstrtab) 
 {
-	char c = '?';
+char c = '?';
 
-	//IFUNC
+	// 1. IFUNC
 	if (ELF64_ST_TYPE(sym.st_info) == STT_GNU_IFUNC) {
 		c = (ELF64_ST_BIND(sym.st_info) == STB_LOCAL) ? 'i' : 'I';
 	}
 
-	//Symbole non defini
+	// 2. Symbole non defini
 	else if (sym.st_shndx == SHN_UNDEF) {
 	if (ELF64_ST_BIND(sym.st_info) == STB_WEAK) {
 		c = (ELF64_ST_TYPE(sym.st_info) == STT_OBJECT) ? 'v' : 'w';
@@ -32,7 +18,7 @@ char get_symbol_type_64(Elf64_Sym sym, Elf64_Shdr *shdr, char *shstrtab)
 	}
 	}
 
-	//Symboles speciaux
+	// 3. Symboles speciaux
 	else if (sym.st_shndx == SHN_ABS) {
 		c = 'A';
 	}
@@ -40,31 +26,31 @@ char get_symbol_type_64(Elf64_Sym sym, Elf64_Shdr *shdr, char *shstrtab)
 		c = (ELF64_ST_BIND(sym.st_info) == STB_LOCAL) ? 'c' : 'C';
 	}
 
-	//Symboles definis dans une section
+	// 4. Symboles definis dans une section
 	else if (sym.st_shndx < SHN_LORESERVE) {
 		Elf64_Shdr sec = shdr[sym.st_shndx];
 		const char *sec_name = shstrtab + sec.sh_name;
 
-		//Weak defini
+		// 4.1 Weak defini
 		if (ELF64_ST_BIND(sym.st_info) == STB_WEAK) {
 			c = (ELF64_ST_TYPE(sym.st_info) == STT_OBJECT) ? 'V' : 'W';
 		}
-		//Sections de debug
+		// 4.2 Sections de debug
 		else if (sec_name && strncmp(sec_name, ".debug", 6) == 0) {
 			c = 'N';
 		}
-		//.bss
+		// 4.3 .bss
 		else if (sec.sh_type == SHT_NOBITS) {
 			c = 'B';
 		}
-		//.dynamic
+		// 4.4 .dynamic
 		else if (sec.sh_type == SHT_DYNAMIC) {
 			c = 'D';
 		}
 		else if (sec.sh_type == SHT_INIT_ARRAY || sec.sh_type == SHT_FINI_ARRAY) {
 			c = 'D';
 		}
-		//Section .text / .data / .rodata
+		// 4.5 .text / .data / .rodata
 		else if (sec.sh_type == SHT_PROGBITS) {
 			if (sec.sh_flags & SHF_EXECINSTR)
 				c = 'T';
@@ -73,22 +59,22 @@ char get_symbol_type_64(Elf64_Sym sym, Elf64_Shdr *shdr, char *shstrtab)
 			else
 				c = 'R';
 		}
-		//Section lecture seule comme .note, .eh_frame
+		// 4.6 Sections lecture seule comme .note, .eh_frame
 		else if ((sec.sh_flags & SHF_ALLOC) &&
-				 !(sec.sh_flags & SHF_WRITE) &&
-				 !(sec.sh_flags & SHF_EXECINSTR)) {
+		         !(sec.sh_flags & SHF_WRITE) &&
+		         !(sec.sh_flags & SHF_EXECINSTR)) {
 			c = 'R';
 		}
-		//Section .sdata / .sbss (optionnel)
+		// 4.7 Sections .sdata / .sbss (optionnel)
 		else if (sec_name &&
-				 (strcmp(sec_name, ".sdata") == 0 || strcmp(sec_name, ".sbss") == 0)) {
+		         (strcmp(sec_name, ".sdata") == 0 || strcmp(sec_name, ".sbss") == 0)) {
 			c = (ELF64_ST_BIND(sym.st_info) == STB_LOCAL) ? 'g' : 'G';
 		}
 	}
 
-	// minuscule si local (sauf les cas particuliers)
+	// 5. Mise en minuscule si local (sauf les cas particuliers)
 	if (ELF64_ST_BIND(sym.st_info) == STB_LOCAL &&
-		c != '?' && c != 'U' && c != 'w' && c != 'v')
+	    c != '?' && c != 'U' && c != 'w' && c != 'v')
 		c += 32;
 
 	return c;
@@ -139,11 +125,13 @@ int get_section_64(Elf64_Ehdr *ehdr, char *addr)
 		char type = get_symbol_type_64(symtab[i], shdr, shstrtab);
 		unsigned long addr = symtab[i].st_value;
 
+		// Ajout a la liste
+
 		list_add_back(&list, addr, type, name);
-		}
+        }
 		// setlocale(LC_COLLATE, ""); //active les regles pour strcoll
 		sort_list_ascii(&list);
 		// sort_list_by_str(&list);
-		printer_64(list);
+        printer_64(list);
 	return(0);
 }
