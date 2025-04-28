@@ -26,6 +26,7 @@ typedef struct s_lst {
 }t_lst;
 
 
+void freelist(t_lst *list);
 void sort_list_ascii(t_lst **head);
 t_lst *sort_utf_8(t_lst *lst);
 const char *ft_setlocale(int category, const char *locale);

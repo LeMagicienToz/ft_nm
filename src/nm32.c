@@ -45,10 +45,10 @@ char get_symbol_type_32(Elf32_Sym sym, Elf32_Shdr *shdr, char *shstrtab)
 			c = 'B';
 		}
 		//.dynamic
-		else if (sec.sh_type == SHT_DYNAMIC) {
-			c = 'D';
-		}
-		else if (sec.sh_type == SHT_INIT_ARRAY || sec.sh_type == SHT_FINI_ARRAY) {
+		else if (sec.sh_type == SHT_DYNAMIC
+			|| sec.sh_type == SHT_INIT_ARRAY
+			|| sec.sh_type == SHT_FINI_ARRAY
+			|| sec.sh_type == SHT_PREINIT_ARRAY) {
 			c = 'D';
 		}
 		//Section .text / .data / .rodata
@@ -68,7 +68,7 @@ char get_symbol_type_32(Elf32_Sym sym, Elf32_Shdr *shdr, char *shstrtab)
 		}
 		//Section .sdata / .sbss (optionnel)
 		else if (sec_name &&
-				 (strcmp(sec_name, ".sdata") == 0 || strcmp(sec_name, ".sbss") == 0)) {
+				 (ft_strcmp(sec_name, ".sdata") == 0 || ft_strcmp(sec_name, ".sbss") == 0)) {
 			c = (ELF32_ST_BIND(sym.st_info) == STB_LOCAL) ? 'g' : 'G';
 		}
 	}
@@ -92,11 +92,11 @@ int get_section_32(Elf32_Ehdr *ehdr, char *addr)
 	size_t strtab_size = 0;
 
 	for (int i = 0; i < ehdr->e_shnum; i++) {
-		if (strcmp(&shstrtab[shdr[i].sh_name], ".symtab") == 0) {
+		if (ft_strcmp(&shstrtab[shdr[i].sh_name], ".symtab") == 0) {
 			symtab = (Elf32_Sym *)(addr + shdr[i].sh_offset);
 			sym_count = shdr[i].sh_size / sizeof(Elf32_Sym);
 		}
-		else if (strcmp(&shstrtab[shdr[i].sh_name], ".strtab") == 0) {
+		else if (ft_strcmp(&shstrtab[shdr[i].sh_name], ".strtab") == 0) {
 			strtab = (char *)(addr + shdr[i].sh_offset);
 			strtab_size = shdr[i].sh_size;
 		}
@@ -130,5 +130,6 @@ int get_section_32(Elf32_Ehdr *ehdr, char *addr)
 		sort_list_ascii(&list);
 		// sort_list_by_str(&list);
 		printer_32(list);
+		freelist(list);
 	return(0);
 }

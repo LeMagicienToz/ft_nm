@@ -18,7 +18,7 @@ LIBFT = $(LIBFT_DIR)/libft.a
 all: $(NAME)
 
 $(NAME): $(LIBFT) $(OBJS)
-	@$(CC) $(CFLAGS) -o $(NAME) $(OBJS) $(LIBFT)
+	@$(CC) $(CFLAGS) -o $(NAME) $(OBJS) $(LIBFT) -fsanitize=address
 	@echo $$'\n✅ \033[1;32mproject compiled\033[0m ✅'
 
 %.o: %.c

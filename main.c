@@ -3,7 +3,7 @@
 int checkset_64_32(char *addr, size_t size)
 {
 	if (size < sizeof(Elf64_Ehdr)) {
-		printf("File too small to be an ELF\n");
+		ft_printf("File too small to be an ELF\n");
 		return -1;
 	}
 
@@ -14,27 +14,27 @@ int checkset_64_32(char *addr, size_t size)
 		ehdr->e_ident[EI_MAG1] != ELFMAG1 || 
 		ehdr->e_ident[EI_MAG2] != ELFMAG2 || 
 		ehdr->e_ident[EI_MAG3] != ELFMAG3) {
-		printf("Not an ELF file\n");
+		ft_printf("Not an ELF file\n");
 		return -1;
 	}
 	else if(ehdr32->e_ident[EI_MAG0] != ELFMAG0 || 
 		ehdr32->e_ident[EI_MAG1] != ELFMAG1 || 
 		ehdr32->e_ident[EI_MAG2] != ELFMAG2 || 
 		ehdr32->e_ident[EI_MAG3] != ELFMAG3) {
-		printf("Not an ELF file\n");
+		ft_printf("Not an ELF file\n");
 		return -1;
 	}
 
 	if (ehdr->e_ident[EI_CLASS] == ELFCLASS32) {
-		printf("ELF is 32-bit (ELF32)\n");
+		ft_printf("ELF is 32-bit (ELF32)\n");
 		get_section_32(ehdr32, addr);
 		return 32;
 	} else if (ehdr->e_ident[EI_CLASS] == ELFCLASS64) {
-		printf("ELF is 64-bit (ELF64)\n");
+		ft_printf("ELF is 64-bit (ELF64)\n");
 		get_section_64(ehdr, addr);
 		return 64;
 	} else {
-		printf("Unknown ELF class\n");
+		ft_printf("Unknown ELF class\n");
 		return -1;
 	}
 }
@@ -67,7 +67,7 @@ int open_map_binary(const char *path)
 	}
 
 	if (statbuf.st_size == 0) {
-		printf("File is empty\n");
+		ft_printf("File is empty\n");
 		close(fd);
 		return -1;
 	}
@@ -88,7 +88,7 @@ int open_map_binary(const char *path)
 int main(int ac, char **av)
 {
 	if (ac != 2) {
-		ft_printf("Usage: %s <elf_file>\n", av[0]);
+		ft_ft_printf("Usage: %s <elf_file>\n", av[0]);
 		return 1;
 	}
 

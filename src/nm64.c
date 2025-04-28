@@ -30,7 +30,6 @@ char c = '?';
 	else if (sym.st_shndx < SHN_LORESERVE) {
 		Elf64_Shdr sec = shdr[sym.st_shndx];
 		const char *sec_name = shstrtab + sec.sh_name;
-
 		// 4.1 Weak defini
 		if (ELF64_ST_BIND(sym.st_info) == STB_WEAK) {
 			c = (ELF64_ST_TYPE(sym.st_info) == STT_OBJECT) ? 'V' : 'W';
@@ -44,14 +43,15 @@ char c = '?';
 			c = 'B';
 		}
 		// 4.4 .dynamic
-		else if (sec.sh_type == SHT_DYNAMIC) {
-			c = 'D';
-		}
-		else if (sec.sh_type == SHT_INIT_ARRAY || sec.sh_type == SHT_FINI_ARRAY) {
+		else if (sec.sh_type == SHT_DYNAMIC
+			|| sec.sh_type == SHT_INIT_ARRAY
+			|| sec.sh_type == SHT_FINI_ARRAY
+			|| sec.sh_type == SHT_PREINIT_ARRAY) {
 			c = 'D';
 		}
 		// 4.5 .text / .data / .rodata
 		else if (sec.sh_type == SHT_PROGBITS) {
+			// printf("\nouiii\n");
 			if (sec.sh_flags & SHF_EXECINSTR)
 				c = 'T';
 			else if (sec.sh_flags & SHF_WRITE)
@@ -67,7 +67,7 @@ char c = '?';
 		}
 		// 4.7 Sections .sdata / .sbss (optionnel)
 		else if (sec_name &&
-		         (strcmp(sec_name, ".sdata") == 0 || strcmp(sec_name, ".sbss") == 0)) {
+		         (ft_strcmp(sec_name, ".sdata") == 0 || ft_strcmp(sec_name, ".sbss") == 0)) {
 			c = (ELF64_ST_BIND(sym.st_info) == STB_LOCAL) ? 'g' : 'G';
 		}
 	}
@@ -93,11 +93,11 @@ int get_section_64(Elf64_Ehdr *ehdr, char *addr)
 	size_t strtab_size = 0;
 
 	for (int i = 0; i < ehdr->e_shnum; i++) {
-		if (strcmp(&shstrtab[shdr[i].sh_name], ".symtab") == 0) {
+		if (ft_strcmp(&shstrtab[shdr[i].sh_name], ".symtab") == 0) {
 			symtab = (Elf64_Sym *)(addr + shdr[i].sh_offset);
 			sym_count = shdr[i].sh_size / sizeof(Elf64_Sym);
 		}
-		else if (strcmp(&shstrtab[shdr[i].sh_name], ".strtab") == 0) {
+		else if (ft_strcmp(&shstrtab[shdr[i].sh_name], ".strtab") == 0) {
 			strtab = (char *)(addr + shdr[i].sh_offset);
 			strtab_size = shdr[i].sh_size;
 		}
@@ -121,17 +121,13 @@ int get_section_64(Elf64_Ehdr *ehdr, char *addr)
 			continue;
 		if (ELF64_ST_TYPE(symtab[i].st_info) == STT_FILE)
 			continue;
-
 		char type = get_symbol_type_64(symtab[i], shdr, shstrtab);
 		unsigned long addr = symtab[i].st_value;
-
-		// Ajout a la liste
-
 		list_add_back(&list, addr, type, name);
         }
 		// setlocale(LC_COLLATE, ""); //active les regles pour strcoll
 		sort_list_ascii(&list);
-		// sort_list_by_str(&list);
         printer_64(list);
+		freelist(list);
 	return(0);
 }

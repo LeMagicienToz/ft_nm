@@ -37,6 +37,7 @@ SRCS =	ft_atoi.c \
 		ft_argputchar.c \
 		ft_argputstr.c \
 		ft_putchar.c \
+		ft_strcmp.c \
 		ft_argputchar.c\
 		ft_argputstr.c\
 		ft_putstr.c\

@@ -123,6 +123,20 @@ void list_add_back(t_lst **head, unsigned long addr, char symb, const char *name
 	tmp->next = new;
 }
 
+
+void freelist(t_lst *list)
+{
+    t_lst *tmp;
+
+    while (list)
+    {
+        tmp = list->next;
+        free(list->str);
+        free(list);
+        list = tmp;
+    }
+}
+
 t_lst *ft_lstnew(void *content) {
 	t_lst *d = (t_lst *)malloc(sizeof(t_lst));
 	if (!d)
