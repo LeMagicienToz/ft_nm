@@ -103,7 +103,7 @@ int get_section_32(Elf32_Ehdr *ehdr, char *addr)
 	}
 
 	if (!symtab || !strtab) {
-		return 0;
+		return 4;
 	}
 
 	t_lst *list = NULL;

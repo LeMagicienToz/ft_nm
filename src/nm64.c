@@ -104,7 +104,7 @@ int get_section_64(Elf64_Ehdr *ehdr, char *addr)
 	}
 
 	if (!symtab || !strtab) {
-		return 0;
+		return 4;
 	}
 
 	t_lst *list = NULL;

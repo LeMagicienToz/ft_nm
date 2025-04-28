@@ -35,7 +35,7 @@ void printer_64(t_lst *list);
 void printer_32(t_lst *list);
 void list_add_back(t_lst **head, unsigned long addr, char symb, const char *name);
 t_lst	*ft_lstnew(void *content);
-int checkset_64_32(char *addr, size_t size);
+int checkset_64_32(char *addr, size_t size, const char *path);
 int open_map_binary(const char *path);
 
 //64b
