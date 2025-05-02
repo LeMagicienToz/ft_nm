@@ -77,10 +77,16 @@ int open_map_binary(const char *path)
 
 int main(int ac, char **av)
 {
-	if (ac != 2) {
-		ft_printf("Usage: %s <elf_file>\n", av[0]);
-		return 1;
+	if(ac != 2)
+	{
+		for(int i = 1 ; i < ac; i++)
+		{
+			ft_printf("\n");
+			ft_printf("%s: \n", av[i]);
+			open_map_binary(av[i]);
+		}
 	}
-
-	return open_map_binary(av[1]) == -1 ? 1 : 0;
+	else
+		open_map_binary(av[1]);
+	return 0;
 }
